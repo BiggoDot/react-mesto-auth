@@ -1,4 +1,3 @@
-import '../index.css';
 import Header from "./Header";
 import Main from "./Main";
 import Footer from "./Footer";
@@ -31,7 +30,6 @@ function App(props) {
     const [loggedIn, setLoggedIn] = React.useState(false);
     const [notification, setNotification] = React.useState(false);
     const [userInfo, setUserInfo] = React.useState(null);
-
 
     React.useEffect(() => {
         handleCheckToken();
