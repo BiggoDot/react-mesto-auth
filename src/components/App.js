@@ -4,7 +4,7 @@ import Main from "./Main";
 import Footer from "./Footer";
 import PopupWithForm from "./PopupWithForm";
 import React from "react";
-import {Route, Routes, useNavigate} from 'react-router-dom';
+import {Route, Routes, useNavigate, Navigate} from 'react-router-dom';
 import ImagePopup from "./ImagePopup";
 import {api} from "../utils/api";
 import {CurrentUserContext} from "../contexts/CurrentUserContext";
@@ -32,17 +32,18 @@ function App(props) {
     const [notification, setNotification] = React.useState(false);
     const [userInfo, setUserInfo] = React.useState(null);
 
+
     React.useEffect(() => {
         handleCheckToken();
         if (loggedIn) {
-            navigate('/')
+            navigate('/');
+            Promise.all([api.getInitialCards(), api.getProfile()])
+                .then(([cardInfo, userInfo]) => {
+                    setCards(cardInfo);
+                    setCurrentUser(userInfo);
+                })
+                .catch((err) => console.log(err))
         }
-        Promise.all([api.getInitialCards(), api.getProfile()])
-            .then(([cardInfo, userInfo]) => {
-                setCards(cardInfo);
-                setCurrentUser(userInfo);
-            })
-            .catch((err) => console.log(err))
     }, [loggedIn])
 
     function handleCardLike(card) {
@@ -135,12 +136,15 @@ function App(props) {
                     navigate('/');
                 }
             })
-            .catch((err) => console.log(err))
+            .catch(() => {
+                setNotification(false);
+                setInfoToolOpen(true);
+            })
     }
 
     function handleCheckToken() {
-        if (localStorage.getItem('jwt')) {
-            let jwt = localStorage.getItem('jwt');
+        const jwt = localStorage.getItem('jwt');
+        if (jwt) {
             checkToken(jwt)
                 .then((res) => {
                     if (res) {
@@ -185,7 +189,13 @@ function App(props) {
                         img={notification ? success : fail} text={notification ?
                         'Вы успешно зарегистрировались!'
                         : 'Что-то пошло не так! Попробуйте ещё раз.'}/></>}></Route>
-                    <Route path='/signin' element={<Login onLogin={handleLoginSubmit}/>}></Route>
+                    <Route path='/signin' element={<><Login onLogin={handleLoginSubmit}/>
+                        <InfoTooltip
+                            onClose={closeAllPopups} isOpen={infoToolOpen} name={'info-tool'}
+                            img={notification ? success : fail} text={notification ?
+                            'Вы успешно зарегистрировались!'
+                            : 'Что-то пошло не так! Попробуйте ещё раз.'}/></>}></Route>
+                    <Route path={'*'} element={<Navigate replace to={loggedIn ? '/' : '/signin'}/>}/>
                 </Routes>
             </CurrentUserContext.Provider>
         </div>

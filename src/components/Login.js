@@ -28,7 +28,7 @@ function Login(props) {
                    name="email" value={email || ''} onChange={handleEmail}
                    minLength="2" maxLength="40" required/>
             <span className="popup__input-error email-error"></span>
-            <input type="text" placeholder="Пароль" className="popup__input popup__input_for_entrance"
+            <input type="password" placeholder="Пароль" className="popup__input popup__input_for_entrance"
                    id="password"
                    name="password" value={password || ''} onChange={handlePassword} minLength="6"
                    maxLength="200" required/>
